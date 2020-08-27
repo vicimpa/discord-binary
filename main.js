@@ -1,4 +1,4 @@
-const { Client, Presence, Game, DMChannel } = require('discord.js')
+const { Client, DMChannel } = require('discord.js')
 const { Token } = require('./lib/token')
 const { readLine } = require('./lib/console')
 const { DiscordAuth } = require('./lib/discordAuth')
@@ -123,29 +123,6 @@ async function main() {
       Token.writeToken('')
     }
   }
-
-  client.user.setPresence({
-    game: {
-      type: 'WATCHING',
-      name: 'в книгу видит фигу'
-    }
-  })
-
-
-
-  // let guild = client.guilds.get('273469488702423051')
-
-  // console.log(guild.createdAt)
-
-  // await guild.fetchMembers()
-
-  // for(let [id, member] of guild.members) {
-  //   try {
-  //     await member.user.send(`Ты зарегался: ${member.joinedAt}`)
-  //   }catch(e) {
-
-  //   }
-  // }
 
   client.on('message', async (message) => {
     if(!(message.channel instanceof DMChannel))
