@@ -80,12 +80,13 @@ exports.model = async function AutoKick(client) {
         if(!channel.memberPermissions(myMember).has('MANAGE_CHANNELS'))
           continue
 
+
         for(let [,member] of channel.members) {
           const {id} = member
 
           if(clientsIds.indexOf(id) == -1)
             continue
-
+            
           await member.setVoiceChannel(null)
         }
       }
