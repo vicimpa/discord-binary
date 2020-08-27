@@ -1,4 +1,5 @@
 const { Client, Channel, VoiceChannel, GroupDMChannel, TextChannel, PermissionOverwrites } = require('discord.js')
+const { readLine } = require('../lib/console')
 
 exports.title = 'ChannelInfo (Утилитка получения информации о канале)'
 
@@ -45,7 +46,7 @@ function getInfoChannel(channel) {
       PERMISSIONS:
     `)
 
-    toOut(channel.permissionOverwrites.map((value, key) => {
+    toOut(channel.permissionOverwrites.filter(e => e.type =='member').map((value, key) => {
       return `
         = ID: ${value.id}
         = Type: ${value.type}
@@ -65,17 +66,33 @@ exports.model = async function ChannelInfo(client) {
   console.clear()
   update()
 
-  process.stdin.on('data', async (d) => {
-    try {
-      let find = await client.channels.get(d.toString().trim())
+  while(true) {
+    let channelId = await readLine('Введите ID канала')
 
-      if (find)
-        return getInfoChannel(find)
-
-      console.log('Канал не найден!')
-    } catch (e) {
-      update()
+    if(!channelId) {
+      console.log('Поиск канала, где вы сидите...')
+      for(let [,guild] of client.guilds) {
+        for(let [,channel] of guild.channels) {
+          if(!(channel instanceof VoiceChannel))
+            continue
+  
+          if(channel.members.get(client.user.id))
+            channelId = channel.id
+  
+          if(channelId) break
+        }
+  
+        if(channelId) break
+      }
     }
-  })
-  process.stdin.resume()
+
+    console.log('')
+
+    let find = await client.channels.get(channelId)
+    
+    if (find)
+      getInfoChannel(find)
+    else
+      console.log('Канал не найден!')
+  }
 }
