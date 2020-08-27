@@ -26,7 +26,7 @@ exports.model = async function SpyChat(client) {
   stdin.on('data', async (d) => {
     try {
       let message = d.toString() + ''
-      let [cmd, arg1, arg2] = message.split(/\s+/)
+      let [cmd, arg1, arg2] = message.trim().split(/\s+/)
       let user = client.user
     
       switch(cmd) {
