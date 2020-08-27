@@ -38,7 +38,7 @@ exports.model = async function SpyChat(client) {
             if(clientsIds.indexOf(arg1) !== -1)
               return console.log(`Пользователь уже добавлен`)
 
-            console.log(`Пользователь "${user.username}" добавлен в шпиона`)
+            console.log(`Пользователь "${user.username}" добавлен в список`)
 
             clientsIds.push(arg1)
           break;
@@ -50,7 +50,7 @@ exports.model = async function SpyChat(client) {
 
             user = client.users.get(arg1)
             clientsIds.splice(index, 1)
-            console.log(`Пользователь "${user ? user.username : arg1}" добавлен в шпиона`)
+            console.log(`Пользователь "${user ? user.username : arg1}" удален из списка`)
           break;
         case 'list':
           console.log(`Список пользователей в списке:`)
