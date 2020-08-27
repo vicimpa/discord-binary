@@ -1,10 +1,10 @@
 const { Client, RichEmbed, TextChannel, CategoryChannel, Message } = require('discord.js')
 const { stdin, readLine } = require('../lib/console')
 
-exports.title = 'Поиск закрепленных сообщений'
+exports.title = 'PinedMessage (Поиск закрепленных сообщений)'
 
 /** @param {Client} client */
-exports.model = async function BineryChat(client) {
+exports.model = async function PinedMessage(client) {
   console.clear()
   console.log('Добро пожаловать в Модуль')
 

@@ -4,7 +4,7 @@ const { stdin, readLine } = require('../lib/console')
 exports.title = 'RichChat (test) (Утилитка для создания объявлений)'
 
 /** @param {Client} client */
-exports.model = async function BineryChat(client) {
+exports.model = async function RichChat(client) {
   console.clear()
   console.log('Добро пожаловать в RichChat')
   let clientId = await readLine('Введите id канала?')
@@ -13,7 +13,7 @@ exports.model = async function BineryChat(client) {
 
   if (!channel) {
     console.log('Канал не найден!')
-    return BineryChat(client)
+    return RichChat(client)
   }
 
   console.log(`Открыт диалог с ${channel.name}`)

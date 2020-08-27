@@ -61,7 +61,7 @@ function getInfoChannel(channel) {
 }
 
 /** @param {Client} client */
-exports.model = async function ClearChat(client) {
+exports.model = async function ChannelInfo(client) {
   console.clear()
   update()
 
