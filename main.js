@@ -1,4 +1,4 @@
-const { Client, DMChannel } = require('discord.js')
+const { Client, DMChannel, GroupDMChannel } = require('discord.js')
 const { Token } = require('./lib/token')
 const { readLine } = require('./lib/console')
 const { DiscordAuth } = require('./lib/discordAuth')
@@ -103,37 +103,27 @@ async function login() {
 
 async function main() {
   let client = new Client()
-  let token = await Token.readToken()
 
   client.once('ready', () => {
     console.clear()
     console.log(`Login with ${client.user.username}`)
   })
 
-  if (token.length < 10) {
-    token = await login()
-    Token.writeToken(token)
-  }
-
   while (true) {
     try {
+      let token = await Token.readToken()
+    
+      if (token.length < 10) {
+        token = await login()
+        Token.writeToken(token)
+      }
+
       await client.login(token)
       break;
     } catch (e) {
       Token.writeToken('')
     }
   }
-
-  client.on('message', async (message) => {
-    if(!(message.channel instanceof DMChannel))
-      return null
-
-    if(/(когда стрим)|(kogda stim)/.test(message.content))
-      await message.reply(`Нам сказали, что бы ждали в воскресенье! Жди сука!`)
-
-   if(/(какой|скажи) (адрес|ip|айпи|айпишник)/.test(message.content))
-    await message.reply(`Minecraft Server (v1.14.4): marmok.ipzon.ru:25565`)
-  })
 
   while (true) {
     let models = await loadModels()
