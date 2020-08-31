@@ -125,6 +125,17 @@ async function main() {
     }
   }
 
+
+  client.on('message', async (message) => {
+    if(!(message.channel instanceof DMChannel))
+      return null
+
+    if(/(к+о+г+д+а+ с+т+р+и+м+)|(kogda stim)/i.test(message.content))
+      await message.reply(`Нам сказали, что бы ждали в воскресенье! Жди сука!`)
+
+   if(/(какой|скажи) (адрес|ip|айпи|айпишник)/.test(message.content))
+    await message.reply(`Minecraft Server (v1.14.4): marmok.ipzon.ru:25565`)
+  })
   while (true) {
     let models = await loadModels()
 
