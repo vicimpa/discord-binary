@@ -1,4 +1,4 @@
-const { Client, DMChannel, GroupDMChannel } = require('discord.js')
+const { Client } = require('discord.js')
 const { Token } = require('./lib/token')
 const { readLine } = require('./lib/console')
 const { DiscordAuth } = require('./lib/discordAuth')
@@ -124,7 +124,7 @@ async function main() {
       Token.writeToken('')
     }
   }
-  
+
   while (true) {
     let models = await loadModels()
 
