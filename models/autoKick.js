@@ -88,6 +88,7 @@ exports.model = async function AutoKick(client) {
             continue
             
           await member.setVoiceChannel(null)
+            .catch(() => {})
         }
       }
     } 
