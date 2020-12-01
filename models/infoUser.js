@@ -1,4 +1,4 @@
-const { Client, VoiceChannel, TextChannel, PermissionOverwrites, User } = require('discord.js')
+const { Client, PermissionOverwrites, User } = require('discord.js')
 const { readLine } = require('../lib/console')
 
 exports.title = 'UserInfo (Утилитка получения информации о пользователе)'
@@ -40,12 +40,18 @@ function getInfoUser(client, user) {
     CreatedAt: ${user.createdAt}
   `)
 
-  toOut(`
-    Servers:
-  `)
+  let header = false
+
   for(let [id, guild] of client.guilds) {
     if(!guild.members.has(user.id))
       continue
+
+    if(!header) {
+      toOut(`
+        Servers:
+      `)
+      header = true
+    }
 
     let member = guild.member(user)
 
