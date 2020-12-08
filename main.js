@@ -6,9 +6,7 @@ const { promises: { readdir } } = require('fs')
 const { existsSync } = require('fs')
 const { join: joinPath } = require('path')
 
-/**
- * @returns {Promise<[{title: string, model: (client: Client) => Promise<void>}]>}
- */
+/** @returns {Promise<[{title: string, model: (client: Client) => Promise<void>}]>} */
 async function loadModels() {
   let dir = './models'
   let exts = ['', '.js', '.ts']
