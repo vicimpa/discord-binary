@@ -106,7 +106,7 @@ exports.model = async function AutoKick(client) {
       .forEach(member => member.setVoiceChannel(null).catch(() => {}));
   });
 
-  client.voiceConnections?.forEach(v => v.members
+  client.voiceConnections?.forEach(v => v.channel.members
     .filter(m => clientsIds.some(({id}) => id === m.id))
     .forEach(member => member.setVoiceChannel(null).catch(() => {})))
   
