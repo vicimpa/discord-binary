@@ -1,28 +1,47 @@
 const { Client, VoiceChannel } = require('discord.js')
+const cache = require('../lib/cache')
 const { stdin } = require('../lib/console')
 const { delay } = require('../lib/delay')
 
-function help() {
+/**
+ * 
+ * @param {{list: {id: string, name: string}[]}} [users]
+ */
+function help(users = []) {
   console.log(`Добро пожаловать в AutoKick`)
   console.log(`Список команд:`)
   console.log(`
     add [id человека] - Добавить в список
     del [id человека] - Удалить из списка
-    list - Список людей в списке
-    help - Помощь 
+    list - Список людей в автокике
+    help - Помощь
   `.trim().split('\n').map(e => '-- '+e.trim()).join('\n'))
+  console.log(users && users.length
+    ? `Текущий список\n${users.map(({id, name}, i) => `${i+1}. [${id}] ${name}`).join('\n')}` 
+    : "")
 }
 
 exports.title = 'AutoKick (Автоматический кик персонажей по ID)'
 
 /** @param {Client} client */
 exports.model = async function AutoKick(client) {
-  let clientsIds = []
+  /**
+   * @type {{list: {id: string, name: string}[]}}
+   */
+  const { list: clientsIds } = await cache('list', "AUTOKICK") || {list: []};
   
   stdin.resume()
 
   console.clear()
-  help()
+  const _help = help.bind(null, clientsIds)
+  _help()
+  /**
+   * 
+   * @param {{id: string, name: string}[]} clients 
+   */
+  const pushToCache = (clients) => {
+    return cache('list', "AUTOKICK", { list: clients });
+  }
 
   stdin.on('data', async (d) => {
     try {
@@ -36,63 +55,59 @@ exports.model = async function AutoKick(client) {
             if(!user)
               return console.log(`Не найден пользователь`)
 
-            if(clientsIds.indexOf(arg1) !== -1)
+            if(clientsIds.some(({id}) => id === arg1))
               return console.log(`Пользователь уже добавлен`)
 
             console.log(`Пользователь "${user.username}" добавлен в список`)
-
-            clientsIds.push(arg1)
+            clientsIds.push({id: arg1, name: user.username});
+            await pushToCache(clientsIds);
           break;
         case 'del':
-            let index = clientsIds.indexOf(arg1)
+            const index = clientsIds.findIndex(({id}) => arg1 === id);
 
             if(index === -1)
-              return console.log(`Данный пользователь не добавлен`)
+              return console.log(`Данный пользователь не добавлен`);
 
-            user = client.users.get(arg1)
-            clientsIds.splice(index, 1)
-            console.log(`Пользователь "${user ? user.username : arg1}" удален из списка`)
+            const { name } = clientsIds[index];
+
+            clientsIds.splice(index, 1);
+
+            await pushToCache(clientsIds);
+            console.log(`Пользователь "${name}" удален из списка`);
           break;
         case 'list':
-          console.log(`Список пользователей в списке:`)
-          for(let clientid of clientsIds) {
-            let index = clientsIds.indexOf(clientid)
-            user = client.users.get(clientid)
-            console.log(`${index + 1} ${user ? user.username : clientid}`)
-          }
+          console.log(`Список людей в автокике:`)
+          clientsIds.forEach(({id, name}, i) => console.log(`${i+1}. [${id}] ${name}`));
           break;
 
         case 'help':
-          help()
+          _help()
           break;
       }
-    }catch(e) {}
+    } catch(e) {}
   })
 
+  /**
+   * @type {VoiceChannel[]}
+   */
+  const handledVoiceChannels = client.channels
+    .filter(v => v.type === "voice")
+    .filter(v => v.memberPermissions(client.user)?.has('MANAGE_CHANNELS'));
+
+  client.addListener("voiceStateUpdate", (_, newState) => {
+    const { voiceChannelID = "" } = newState;
+    const voiceChannel = handledVoiceChannels.find(v => v.id === voiceChannelID);
+
+    if (!voiceChannel) return;
+
+    voiceChannel
+      .members
+      .filter(m => clientsIds.includes(m.id))
+      .forEach(member => member.setVoiceChannel(null).catch(() => {}));
+  });
+  
   while(true) {
-    for(let [,guild] of client.guilds) {
-      const myMember = guild.member(client.user)
-
-      for(let [,channel] of guild.channels) {
-        if(!(channel instanceof VoiceChannel))
-          continue
-
-        if(!channel.memberPermissions(myMember).has('MANAGE_CHANNELS'))
-          continue
-
-
-        for(let [,member] of channel.members) {
-          const {id} = member
-
-          if(clientsIds.indexOf(id) == -1)
-            continue
-            
-          await member.setVoiceChannel(null)
-            .catch(() => {})
-        }
-      }
-    } 
-
     await delay(1000)
   }
+  // client.removeListener("voiceStateUpdate")
 }
