@@ -88,15 +88,18 @@ exports.model = async function AutoKick(client) {
   })
 
   /**
-   * @type {VoiceChannel[]}
+   * 
+   * @param {Client} ctx
+   * 
+   * @returns {VoiceChannel[]}
    */
-  const handledVoiceChannels = client.channels
+  const handledVoiceChannels = (ctx) => ctx.channels
     .filter(v => v.type === "voice")
-    .filter(v => v.memberPermissions(client.user)?.has('MANAGE_CHANNELS'));
+    .filter(v => v.memberPermissions(ctx.user)?.has('MANAGE_CHANNELS'));
 
   client.addListener("voiceStateUpdate", (_, newState) => {
     const { voiceChannelID = "" } = newState;
-    const voiceChannel = handledVoiceChannels.find(v => v.id === voiceChannelID);
+    const voiceChannel = handledVoiceChannels(client).find(v => v.id === voiceChannelID);
 
     if (!voiceChannel) return;
 
@@ -105,8 +108,8 @@ exports.model = async function AutoKick(client) {
       .filter(m => clientsIds.some(({id}) => id === m.id))
       .forEach(member => member.setVoiceChannel(null).catch(() => {}));
   });
-  
-  handledVoiceChannels.forEach(v => v.members
+
+  handledVoiceChannels(client).forEach(v => v.members
     .filter(m => clientsIds.some(({id}) => id === m.id))
     .forEach(member => member.setVoiceChannel(null).catch(() => {})))
   
